@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extensions Page Locked · Focus Guardian</title>
+  <link rel="stylesheet" href="../popup/popup.css">
+  <link rel="stylesheet" href="guard.css">
+</head>
+<body class="guard-page">
+  <main class="guard-card" id="guardIntro">
+    <div class="guard-icon">🛡️</div>
+    <h1>The extensions page is guarded</h1>
+    <p class="guard-lead">
+      Focus Guardian stands between you and this page so it can't be switched off on impulse.
+      Clear <strong id="guardWaveCount">3</strong> puzzle waves to get in for
+      <strong id="guardPassMinutes">3</strong> minutes.
+    </p>
+
+    <div id="guardCooldown" class="cooldown guard-cooldown hidden">
+      <span>⏳ Locked out after striking out. Try again in</span>
+      <strong id="guardCooldownTime">0:00</strong>
+    </div>
+
+    <div class="guard-actions">
+      <button id="guardLeave" class="btn btn-success">Never mind, take me back</button>
+      <button id="guardStart" class="btn btn-secondary">Start puzzles</button>
+    </div>
+    <p class="guard-foot">Wrong answers cost strikes. Three strikes locks this page for a few minutes.</p>
+  </main>
+
+    <!-- Challenge Gauntlet Modal (hidden by default) -->
+    <div id="challengeModal" class="modal hidden">
+      <div class="modal-content">
+
+        <!-- Progress header -->
+        <div id="gauntletHeader" class="gauntlet-header">
+          <div class="gauntlet-meta">
+            <span id="waveLabel">Wave 1 of 5</span>
+            <span id="strikeDots" class="strikes" title="Strikes"></span>
+          </div>
+          <div class="progress"><div id="progressFill" class="progress-fill"></div></div>
+        </div>
+
+        <!-- Active puzzle -->
+        <div id="puzzleView" class="challenge hidden">
+          <h2 id="puzzleTitle">Challenge</h2>
+          <p id="puzzlePrompt" class="puzzle-prompt"></p>
+          <div class="time-bar"><div id="timeFill" class="time-fill"></div></div>
+          <div id="puzzleArea" class="puzzle-area"></div>
+          <div id="answerRow" class="answer-row hidden">
+            <input type="text" id="answerInput" class="challenge-input" placeholder="Your answer"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <button id="submitAnswer" class="btn btn-primary">Submit</button>
+          </div>
+          <div id="lockoutOverlay" class="lockout hidden">
+            <div class="lockout-icon">✋</div>
+            <div id="lockoutText">Wrong. Locked for 6s…</div>
+          </div>
+        </div>
+
+        <!-- Final countdown -->
+        <div id="countdownView" class="challenge hidden">
+          <h2>All waves cleared</h2>
+          <p>Still sure you need the extensions page? Take a breath while the timer runs down.</p>
+          <div class="timer-display" id="timerDisplay">10</div>
+          <p class="duration-note" id="passNote">The extensions page will stay open for a few minutes, then lock again.</p>
+          <button id="confirmDisable" class="btn btn-danger" disabled>Open Extensions Page</button>
+        </div>
+
+        <!-- Denial Message -->
+        <div id="denialMessage" class="challenge hidden">
+          <div class="denial-icon">🚫</div>
+          <p class="denial-text">Not right now. Maybe later.</p>
+          <p class="denial-subtext">The extension knows you don't really want to disable it.</p>
+          <button id="closeDenial" class="btn btn-secondary">OK</button>
+        </div>
+
+        <!-- Struck out -->
+        <div id="failedMessage" class="challenge hidden">
+          <div class="denial-icon">💥</div>
+          <p class="denial-text">Gauntlet failed.</p>
+          <p class="denial-subtext" id="failedSubtext">Too many strikes. You're locked out for a few minutes.</p>
+          <button id="closeFailed" class="btn btn-secondary">OK</button>
+        </div>
+
+        <div id="challengeError" class="error hidden"></div>
+        <button id="cancelChallenge" class="btn btn-secondary">Give Up &amp; Stay Focused</button>
+      </div>
+    </div>
+
+
+  <script src="../shared/gauntlet-ui.js"></script>
+  <script src="guard.js"></script>
+</body>
+</html>

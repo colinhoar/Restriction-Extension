@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><title>Icon Generator</title></head>
+<body>
+<canvas id="c16" width="16" height="16"></canvas>
+<canvas id="c48" width="48" height="48"></canvas>
+<canvas id="c128" width="128" height="128"></canvas>
+<script>
+function createIcon(canvasId, size) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  
+  // Gradient background
+  const gradient = ctx.createLinearGradient(0, 0, size, size);
+  gradient.addColorStop(0, '#667eea');
+  gradient.addColorStop(1, '#764ba2');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+  
+  // Shield emoji or symbol
+  ctx.fillStyle = 'white';
+  ctx.font = `${size * 0.6}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🛡️', size/2, size/2);
+}
+
+createIcon('c16', 16);
+createIcon('c48', 48);
+createIcon('c128', 128);
+
+// Download images
+setTimeout(() => {
+  ['c16', 'c48', 'c128'].forEach(id => {
+    const canvas = document.getElementById(id);
+    const link = document.createElement('a');
+    link.download = `icon${canvas.width}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}, 100);
+</script>
+</body>
+</html>
