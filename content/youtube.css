@@ -34,6 +34,13 @@ ytd-watch-flexy ytd-shelf-renderer {
   visibility: hidden !important;
 }
 
+/* Hide the Shorts player so nothing flashes before the redirect to Watch Later.
+   (Shorts opened from Watch Later play in the normal watch page, not ytd-shorts.) */
+ytd-shorts,
+ytd-reel-video-renderer {
+  display: none !important;
+}
+
 /* Hide comments */
 ytd-comments,
 #comments {

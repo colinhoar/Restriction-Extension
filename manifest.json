@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Focus Guardian",
-  "version": "2.1.0",
-  "description": "Block Instagram and create a distraction-free YouTube experience, with a puzzle gauntlet, timed disabling, and a guarded extensions page.",
+  "version": "2.2.0",
+  "description": "Block Instagram and last.fm and create a distraction-free, Shorts-free YouTube experience, with a puzzle gauntlet, timed disabling, and a guarded extensions page.",
   "permissions": [
     "storage",
     "scripting",
@@ -12,6 +12,8 @@
   ],
   "host_permissions": [
     "*://*.instagram.com/*",
+    "*://last.fm/*",
+    "*://*.last.fm/*",
     "*://*.youtube.com/*"
   ],
   "background": {
@@ -20,10 +22,12 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.instagram.com/*"
+        "*://*.instagram.com/*",
+        "*://last.fm/*",
+        "*://*.last.fm/*"
       ],
       "js": [
-        "content/instagram.js"
+        "content/site-blocker.js"
       ],
       "run_at": "document_start"
     },

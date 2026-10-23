@@ -4,14 +4,15 @@ A powerful Chrome extension designed to protect your focus by blocking Instagram
 
 ## 🎯 Features
 
-### 1. **Complete Instagram Blocking**
-- Blocks all access to instagram.com
+### 1. **Complete Site Blocking (Instagram, last.fm)**
+- Blocks all access to instagram.com and last.fm
 - Displays custom blocking message with countdown
 - Automatic redirect loop to prevent easy access
 - Psychological friction to discourage distraction
 
 ### 2. **YouTube Focus Mode**
 - Automatically redirects homepage to "Watch Later"
+- Redirects YouTube Shorts (`/shorts/...`) to "Watch Later" (Shorts saved to Watch Later still play, since they open as normal `/watch` videos)
 - Hides all recommended videos:
   - Homepage feed
   - Sidebar recommendations
@@ -153,7 +154,7 @@ focus-guardian/
 ├── manifest.json              # Extension configuration
 ├── background.js              # Service worker (state management)
 ├── content/
-│   ├── instagram.js          # Instagram blocking logic
+│   ├── site-blocker.js       # Instagram + last.fm blocking logic
 │   ├── youtube.js            # YouTube focus mode logic
 │   └── youtube.css           # YouTube styling
 ├── popup/
@@ -176,7 +177,7 @@ focus-guardian/
 - Implements 30% probabilistic denial
 - Reloads affected tabs when state changes
 
-**Instagram Content Script (`content/instagram.js`):**
+**Site Blocker Content Script (`content/site-blocker.js`):**
 - Runs at `document_start` to block page load immediately
 - Completely replaces page DOM with blocking message
 - Implements countdown timer and redirect loop
@@ -202,7 +203,7 @@ focus-guardian/
 - `scripting`: Execute content scripts
 - `activeTab`: Access current tab information
 - `tabs`: Reload affected tabs
-- Host permissions for `*.instagram.com` and `*.youtube.com`
+- Host permissions for `*.instagram.com`, `*.last.fm` and `*.youtube.com`
 
 ## 🎨 Customization
 
@@ -247,7 +248,7 @@ const shouldDeny = Math.random() < 0.3; // 30% chance
 
 ### Change Instagram Block Message
 
-Edit `content/instagram.js`, line ~58-75 in the `innerHTML` section.
+Edit `content/site-blocker.js` (the `SITES` map and the `innerHTML` section).
 
 ## 🧪 Testing
 

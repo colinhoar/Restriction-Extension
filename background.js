@@ -396,15 +396,40 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 /**
- * Reload all Instagram and YouTube tabs to apply/remove blocking
+ * Sites that are blocked outright (any subdomain matches too).
+ */
+const BLOCKED_SITES = ['instagram.com', 'last.fm'];
+
+/** Parse a URL safely; returns null for anything unparseable. */
+function parseUrl(url) {
+  try { return new URL(url); } catch { return null; }
+}
+
+/** True if the hostname is `domain` or a subdomain of it. */
+function hostMatches(hostname, domain) {
+  return hostname === domain || hostname.endsWith('.' + domain);
+}
+
+function isBlockedSite(url) {
+  const u = parseUrl(url);
+  return !!u && BLOCKED_SITES.some((d) => hostMatches(u.hostname, d));
+}
+
+/** True for YouTube Shorts pages, e.g. youtube.com/shorts/abc123 */
+function isYouTubeShorts(url) {
+  const u = parseUrl(url);
+  return !!u && hostMatches(u.hostname, 'youtube.com') &&
+    (u.pathname === '/shorts' || u.pathname.startsWith('/shorts/'));
+}
+
+/**
+ * Reload all blocked-site and YouTube tabs to apply/remove blocking
  */
 function reloadAffectedTabs() {
   chrome.tabs.query({}, (tabs) => {
     tabs.forEach((tab) => {
-      if (tab.url && (
-        tab.url.includes('instagram.com') ||
-        tab.url.includes('youtube.com')
-      )) {
+      const u = tab.url && parseUrl(tab.url);
+      if (u && (isBlockedSite(tab.url) || hostMatches(u.hostname, 'youtube.com'))) {
         chrome.tabs.reload(tab.id);
       }
     });
@@ -412,18 +437,25 @@ function reloadAffectedTabs() {
 }
 
 /**
- * Block navigation to Instagram at the network level
- * This provides an additional layer of blocking
+ * Block navigation to blocked sites and YouTube Shorts.
+ * tabs.onUpdated also fires for YouTube's in-page (SPA) navigation, so this
+ * catches clicking a Short from inside YouTube, not just typed/pasted links.
+ * Shorts opened from Watch Later play at /watch?v=...&list=WL, so they're unaffected.
  */
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.url && changeInfo.url.includes('instagram.com')) {
-    chrome.storage.local.get(['extensionEnabled'], (data) => {
-      if (data.extensionEnabled !== false) {
-        // Extension is active, block Instagram
-        chrome.tabs.update(tabId, {
-          url: 'about:blank'
-        });
-      }
-    });
-  }
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  const url = changeInfo.url;
+  if (!url) return;
+
+  const blocked = isBlockedSite(url);
+  const shorts = !blocked && isYouTubeShorts(url);
+  if (!blocked && !shorts) return;
+
+  chrome.storage.local.get(['extensionEnabled'], (data) => {
+    if (data.extensionEnabled === false) return;
+    if (blocked) {
+      chrome.tabs.update(tabId, { url: 'about:blank' });
+    } else {
+      chrome.tabs.update(tabId, { url: `${new URL(url).origin}/playlist?list=WL` });
+    }
+  });
 });

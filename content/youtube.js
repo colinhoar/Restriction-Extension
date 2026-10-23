@@ -31,8 +31,13 @@
   function initYouTubeFocusMode() {
     console.log('Focus Guardian: YouTube Focus Mode Active');
 
-    // Redirect homepage to Watch Later
+    // Redirect homepage and Shorts to Watch Later
     redirectToWatchLater();
+
+    // YouTube fires these on in-page navigation; catching them means a Short
+    // is redirected before it starts playing rather than after the title changes.
+    document.addEventListener('yt-navigate-start', redirectToWatchLater);
+    document.addEventListener('yt-navigate-finish', redirectToWatchLater);
 
     // Remove recommendations immediately
     removeRecommendations();
@@ -65,22 +70,37 @@
   }
 
   /**
-   * Redirect homepage to Watch Later
+   * True on YouTube Shorts pages (youtube.com/shorts/<id>).
+   * Shorts opened from Watch Later use /watch?v=...&list=WL, so they don't match.
    */
-  function redirectToWatchLater() {
-    if (window.location.pathname === '/' || window.location.pathname === '/feed/trending') {
-      console.log('Focus Guardian: Redirecting to Watch Later');
-      window.location.href = 'https://www.youtube.com/playlist?list=WL';
-    }
+  function isShortsPage() {
+    const path = window.location.pathname;
+    return path === '/shorts' || path.startsWith('/shorts/');
   }
 
   /**
-   * Check if we're on homepage and redirect
+   * Redirect homepage and Shorts to Watch Later
+   */
+  function redirectToWatchLater() {
+    const path = window.location.pathname;
+    const isHome = path === '/' || path === '/feed/trending';
+    if (!isHome && !isShortsPage()) return;
+
+    if (isShortsPage()) {
+      // Stop the Short from playing while the redirect happens
+      document.querySelectorAll('video').forEach((v) => { v.pause(); v.muted = true; });
+    }
+
+    console.log('Focus Guardian: Redirecting to Watch Later');
+    // replace() keeps the Short out of history so the Back button doesn't bounce back to it
+    window.location.replace(`${window.location.origin}/playlist?list=WL`);
+  }
+
+  /**
+   * Check if we're on homepage or Shorts and redirect
    */
   function checkForHomeRedirect() {
-    if (window.location.pathname === '/' || window.location.pathname === '/feed/trending') {
-      redirectToWatchLater();
-    }
+    redirectToWatchLater();
   }
 
   /**
